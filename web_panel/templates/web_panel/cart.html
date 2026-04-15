@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>{{ body.title }}</h2>
+    
+    {% if body.empty_msg %}
+        <p><a href="{% url 'marketplace_view' %}">{{ body.empty_msg }}</a></p>
+    {% else %}
+        <ul>
+            {% for item in body.items %}
+                <li>{{ item.title }} — {{ item.price_sonechka }} сонечок</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
