@@ -3,4 +3,8 @@ from .models import Reward
 
 @admin.register(Reward)
 class RewardAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price_sonechka', 'partner_name')
+    list_display = ('title', 'get_price', 'partner_name')
+
+    def get_price(self, obj):
+        return f"{obj.price} сонечок"
+    get_price.short_description = 'Ціна'

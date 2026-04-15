@@ -16,7 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from web_panel import views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.marketplace_view, name='marketplace_view'),
+    path('add/', views.add_to_cart, name='add_to_cart'),
+    path('cart/', views.cart_view, name='cart_view'),
+    
 ]
