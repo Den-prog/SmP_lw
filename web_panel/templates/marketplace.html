@@ -1,19 +1,45 @@
 {% extends 'base.html' %}
 
+{% block header %}
+    <h1>{{ header.site_name }}</h1>
+    <p>Ваш баланс: <strong>{{ header.balance }} сонечок</strong></p>
+    <form action="{% url 'earn_sonechka' %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn-earn">Заробити☀️</button>
+</form>
+{% endblock %}
+
 {% block content %}
+    <!-- {% if messages %}
+        <div class="messages-container" style="margin: 20px;">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" 
+                    style="{% if message.tags == 'error' %}color: crimson;
+                            {% elif message.tags == 'success' %}color: limegreen;
+                            {% else %}color: white; {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %} -->
+
     <h2>{{ body.title }}</h2>
-    <div style="display: flex; flex-wrap: wrap;">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
         {% for item in body.items %}
             <div class="card">
                 <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
-                <p>Ціна: <strong>{{ item.price_sonechka }}</strong> сонечок</p>
+                <p>{{ item.desc }}</p>
+                <p>Ціна: <strong>{{ item.price }}</strong> сонечок</p>
                 <form action="{% url 'add_to_cart' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="reward_id" value="{{ item.id }}">
-                    <button type="submit">Купити</button>
+                    <button class="add-btn" type="submit" title="Купити">
+                        <i class="bi bi-cart"></i>
+                    </button>
                 </form>
             </div>
+        {% empty %}
+            <p>Винагороди поки що відсутні.</p>
         {% endfor %}
     </div>
 {% endblock %}

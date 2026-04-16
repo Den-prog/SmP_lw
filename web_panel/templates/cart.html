@@ -1,15 +1,47 @@
 {% extends 'base.html' %}
 
+{% block header %}
+    <h1>{{ header.site_name }}</h1>
+    <p>Ваш баланс: <strong>{{ header.balance }} сонечок</strong></p>
+{% endblock %}
+
 {% block content %}
+    <!-- {% if messages %}
+        <div class="messages-container" style="margin: 20px;">
+            {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" 
+                    style="{% if message.tags == 'error' %}color: crimson;
+                            {% elif message.tags == 'success' %}color: limegreen;
+                            {% else %}color: white; {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %} -->
+
     <h2>{{ body.title }}</h2>
     
     {% if body.empty_msg %}
         <p><a href="{% url 'marketplace_view' %}">{{ body.empty_msg }}</a></p>
     {% else %}
         <ul>
-            {% for item in body.items %}
-                <li>{{ item.title }} — {{ item.price_sonechka }} сонечок</li>
-            {% endfor %}
+        {% for item in body.items %}
+            <li>
+                <span>{{ item.title }} — {{ item.price }} сонечок</span>
+                <form method="post" action="{% url 'remove_from_cart' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="reward_id" value="{{ item.id }}">
+                    <button class="delete-btn" type="submit" title="Видалити">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </form>
+            </li>
+        {% endfor %}
         </ul>
+        <form method="post" action="{% url 'cart_checkout' %}">
+            {% csrf_token %}
+            <button class="checkout-btn">Оформити замовлення</button>
+        </form>
+
     {% endif %}
 {% endblock %}

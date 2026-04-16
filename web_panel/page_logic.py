@@ -8,7 +8,10 @@ class BaseEcoPage:
         return {
             "site_name": self.site_name,
             "balance": self.user_balance,
-            "menu": ["Marketplace", "Cart", "Map"]
+            "menu": [
+                {"label": "Маркетплейс", "url_name": "marketplace_view"},
+                {"label": "Кошик", "url_name": "cart_view"}
+            ]
         }
 
     def render_footer(self):

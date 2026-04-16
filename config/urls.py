@@ -20,9 +20,14 @@ from web_panel import views
 
 
 urlpatterns = [
+    path('', views.marketplace_view, name='markerplace_view'),
     path('admin/', admin.site.urls),
-    path('', views.marketplace_view, name='marketplace_view'),
+    path('marketplace/', views.marketplace_view, name='marketplace_view'),
     path('add/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_view, name='cart_view'),
+    path('cart/remove/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/checkout/', views.cart_checkout, name='cart_checkout'),
+    path('earn/', views.earn_sonechka, name='earn_sonechka'),
+    path('user_page/', views.eco_users_view, name='eco_users_view'),
     
 ]

@@ -1,23 +1,20 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <title>{{ header.site_name }}</title>
-    <style>
-        header { background: #e0f2f1; padding: 10px; border-bottom: 2px solid #004d40; }
-        footer { margin-top: 20px; padding: 10px; font-size: 0.8em; color: #666; }
-        .card { border: 1px solid #ccc; padding: 15px; margin: 10px; border-radius: 8px; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'web_panel/css/base.css' %}">
 </head>
 <body>
     <header>
-        <h1>{{ header.site_name }}</h1>
-        <p>Ваш баланс: <strong>{{ header.balance }} сонечок</strong></p>
+        {% block header %}{% endblock %}
         <nav>
             {% for link in header.menu %}
-                <a href="#">{{ link }}</a> | 
+                <a href="{% url link.url_name %}">{{ link.label }}</a>{% if not forloop.last %} | {% endif %}
             {% endfor %}
-            <a href="{% url 'cart_view' %}">Кошик</a>
         </nav>
     </header>
 
