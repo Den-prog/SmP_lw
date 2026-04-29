@@ -13,8 +13,23 @@ def lab2_view(request):
     try:
         db.connect()
         db.create_table()
-        db.insert_data("test product", 99.99)
-        items_arr = db.fetch_all()
+
+        if request.method == 'POST':
+            if 'add_product' in request.POST:
+                title = request.POST.get('title')
+                price = request.POST.get('price')
+                if title and price:
+                    db.insert_product(title, float(price))
+
+            elif 'delete_product' in request.POST:
+                record_id = request.POST.get('record_id')
+                if record_id:
+                    db.delete_product(int(record_id))
+
+            db.disconnect()
+            return redirect('lab2')
+
+        items_arr = db.fetchall()
         db.disconnect()
         return render(request, 'lab2_template.html', {'items': items_arr})
     except CustomDatabaseError as e:
