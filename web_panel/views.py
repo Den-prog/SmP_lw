@@ -19,15 +19,15 @@ def lab2_view(request):
                 title = request.POST.get('title')
                 price = request.POST.get('price')
                 if title and price:
-                    db.insert_product(title, float(price))
+                    db.insert_data(title, float(price))
 
             elif 'delete_product' in request.POST:
                 record_id = request.POST.get('record_id')
                 if record_id:
-                    db.delete_product(int(record_id))
+                    db.delete_data(int(record_id))
 
             db.disconnect()
-            return redirect('lab2')
+            return redirect('lab2_view')
 
         items_arr = db.fetch_all()
         db.disconnect()
