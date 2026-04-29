@@ -1,10 +1,24 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .db_manager import SQLiteDBManager, CustomDatabaseError
 from .models import Reward
 from .page_logic import MarketplacePage, CartPage
 from django.contrib import messages
 from django.shortcuts import render
 import copy
 
+def lab2_view(request):
+    db = SQLiteDBManager('db.sqlite3')
+
+    try:
+        db.connect()
+        db.create_table()
+        db.insert_data("test product", 99.99)
+        items_arr = db.fetch_all()
+        db.disconnect()
+        return render(request, 'lab2_template.html', {'items': items_arr})
+    except CustomDatabaseError as e:
+        return HttpResponse(f"db error {e}")
 
 class Users:
     #завдання 3, додано початкові значення якщ

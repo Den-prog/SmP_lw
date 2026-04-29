@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Лабораторна 2</title>
+</head>
+<body>
+    <h2>Вміст таблиці:</h2>
+    <ul>
+        {% for item in items %}
+            <li>ID: {{ item.id }} | Назва: {{ item.title }} | Ціна: {{ item.price }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
