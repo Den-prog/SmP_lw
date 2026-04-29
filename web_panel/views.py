@@ -1,10 +1,39 @@
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .db_manager import SQLiteDBManager, CustomDatabaseError
 from .models import Reward
 from .page_logic import MarketplacePage, CartPage
 from django.contrib import messages
 from django.shortcuts import render
 import copy
 
+def lab2_view(request):
+    db = SQLiteDBManager('db.sqlite3')
+
+    try:
+        db.connect()
+        db.create_table()
+
+        if request.method == 'POST':
+            if 'add_product' in request.POST:
+                title = request.POST.get('title')
+                price = request.POST.get('price')
+                if title and price:
+                    db.insert_data(title, float(price))
+
+            elif 'delete_product' in request.POST:
+                record_id = request.POST.get('record_id')
+                if record_id:
+                    db.delete_data(int(record_id))
+
+            db.disconnect()
+            return redirect('lab2_view')
+
+        items_arr = db.fetch_all()
+        db.disconnect()
+        return render(request, 'lab2_template.html', {'items': items_arr})
+    except CustomDatabaseError as e:
+        return HttpResponse(f"db error {e}")
 
 class Users:
     #завдання 3, додано початкові значення якщ
