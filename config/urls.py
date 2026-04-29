@@ -29,5 +29,5 @@ urlpatterns = [
     path('cart/checkout/', views.cart_checkout, name='cart_checkout'),
     path('earn/', views.earn_sonechka, name='earn_sonechka'),
     path('user_page/', views.eco_users_view, name='eco_users_view'),
-    
+    path('lab2/', views.lab2_view, name='lab2_view'),
 ]
