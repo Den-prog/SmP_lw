@@ -29,7 +29,7 @@ def lab2_view(request):
             db.disconnect()
             return redirect('lab2')
 
-        items_arr = db.fetchall()
+        items_arr = db.fetch_all()
         db.disconnect()
         return render(request, 'lab2_template.html', {'items': items_arr})
     except CustomDatabaseError as e:
