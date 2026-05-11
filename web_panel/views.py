@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .db_manager import SQLiteDBManager, CustomDatabaseError
-from .models import Reward
+from .models import Reward, VisitStatistics
 from .page_logic import MarketplacePage, CartPage
 from django.contrib import messages
 from django.shortcuts import render
 import copy
+import datetime
 
 def lab2_view(request):
     db = SQLiteDBManager('db.sqlite3')
@@ -31,7 +32,14 @@ def lab2_view(request):
 
         items_arr = db.fetch_all()
         db.disconnect()
-        return render(request, 'lab2_template.html', {'items': items_arr})
+        
+        # Отримуємо статистику відвідувань
+        today = datetime.date.today()
+        stats = VisitStatistics.objects.filter(date=today).first()
+        if not stats:
+            stats = VisitStatistics(hosts=0, hits=0, total=0)
+        
+        return render(request, 'lab2_template.html', {'items': items_arr, 'stats': stats})
     except CustomDatabaseError as e:
         return HttpResponse(f"db error {e}")
 
@@ -115,10 +123,15 @@ def eco_users_view(request):
     #Task 6
     super_user_2 = SuperUsers()
     
-
+    # Отримуємо статистику відвідувань
+    today = datetime.date.today()
+    stats = VisitStatistics.objects.filter(date=today).first()
+    if not stats:
+        stats = VisitStatistics(hosts=0, hits=0, total=0)
 
     context = {
-        'users_list': [user1, user2, user3, user4, user5, super_user, super_user_2]
+        'users_list': [user1, user2, user3, user4, user5, super_user, super_user_2],
+        'stats': stats
     }
     
     return render(request, 'users_page.html', context)
@@ -129,11 +142,18 @@ def marketplace_view(request):
         request.session['user_balance'] = 150
     page = MarketplacePage(user_balance=request.session['user_balance']) # Припустимо, у юзера 150 сонечок
     rewards = Reward.objects.all()
+    
+    # Отримуємо статистику відвідувань
+    today = datetime.date.today()
+    stats = VisitStatistics.objects.filter(date=today).first()
+    if not stats:
+        stats = VisitStatistics(hosts=0, hits=0, total=0)
 
     context = {
         "header": page.render_header(),
         "body": page.render_body(rewards),
-        "footer": page.render_footer()
+        "footer": page.render_footer(),
+        "stats": stats
     }
     return render(request, 'marketplace.html', context)
 
@@ -192,10 +212,18 @@ def cart_view(request):
     if 'user_balance' not in request.session:
         request.session['user_balance'] = 150
     page = CartPage(user_balance=request.session['user_balance'])
+    
+    # Отримуємо статистику відвідувань
+    today = datetime.date.today()
+    stats = VisitStatistics.objects.filter(date=today).first()
+    if not stats:
+        stats = VisitStatistics(hosts=0, hits=0, total=0)
+    
     context = {
         "header": page.render_header(),
         "body": page.render_body(cart_items),
-        "footer": page.render_footer()
+        "footer": page.render_footer(),
+        "stats": stats
     }
     return render(request, 'cart.html', context)
 
