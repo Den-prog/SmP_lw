@@ -10,3 +10,13 @@ class Reward(models.Model):
         return self.title
 
 
+class VisitStatistics(models.Model):
+    hosts = models.IntegerField(default=0)
+    hits = models.IntegerField(default=0)
+    total = models.BigIntegerField(default=0)
+    date = models.DateField(auto_now=True)
+
+class VisitorIP(models.Model):
+    ip = models.GenericIPAddressField()
+    date = models.DateField(auto_now_add=True)
+
