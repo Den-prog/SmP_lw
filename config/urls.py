@@ -31,5 +31,9 @@ urlpatterns = [
     path('user_page/', views.eco_users_view, name='eco_users_view'),
     path('lab2/', views.lab2_view, name='lab2_view'),
     path('regex-test/', views.regex_test_view, name='regex_test'),
+<<<<<<< HEAD
     path('map_view/', views.map_view, name='map_view'),
+=======
+    path('scheduler/', views.simple_scheduler, name='simple_scheduler'),
+>>>>>>> 40cdc04a2f67d4a57799ab8840eb0a31670fbed3
 ]
