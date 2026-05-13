@@ -10,7 +10,8 @@ class BaseEcoPage:
             "balance": self.user_balance,
             "menu": [
                 {"label": "Маркетплейс", "url_name": "marketplace_view"},
-                {"label": "Кошик", "url_name": "cart_view"}
+                {"label": "Кошик", "url_name": "cart_view"},
+                {"label": "Регулярні вирази", "url_name": "regex_test"}
             ]
         }
 

@@ -2,11 +2,34 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .db_manager import SQLiteDBManager, CustomDatabaseError
 from .models import Reward, VisitStatistics
-from .page_logic import MarketplacePage, CartPage
+from .page_logic import MarketplacePage, CartPage, BaseEcoPage
 from django.contrib import messages
 from django.shortcuts import render
 import copy
 import datetime
+from .regex_utils import is_valid_url, is_valid_date
+
+def regex_test_view(request):
+    page_layout = BaseEcoPage(user_balance=0)
+    context = {
+        'header': page_layout.render_header(),
+        'footer': page_layout.render_footer(),
+    }
+
+    if request.method == "POST":
+        if 'test_url' in request.POST:
+            url_input = request.POST.get('url_input', '')
+            is_valid = is_valid_url(url_input)
+            context['url_result'] = "Дійсна URL-адреса" if is_valid else "Недійсний формат URL"
+            context['url_input'] = url_input
+
+        elif 'test_date' in request.POST:
+            date_input = request.POST.get('date_input', '')
+            is_valid = is_valid_date(date_input)
+            context['date_result'] = "Дійсна дата" if is_valid else "Недійсний формат дати"
+            context['date_input'] = date_input
+
+    return render(request, 'regex_test.html', context)
 
 def lab2_view(request):
     db = SQLiteDBManager('db.sqlite3')

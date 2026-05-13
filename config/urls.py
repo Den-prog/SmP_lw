@@ -30,4 +30,5 @@ urlpatterns = [
     path('earn/', views.earn_sonechka, name='earn_sonechka'),
     path('user_page/', views.eco_users_view, name='eco_users_view'),
     path('lab2/', views.lab2_view, name='lab2_view'),
+path('regex-test/', views.regex_test_view, name='regex_test'),
 ]
