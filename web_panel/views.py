@@ -8,6 +8,7 @@ from django.shortcuts import render
 import copy
 import datetime
 from .regex_utils import is_valid_url, is_valid_date, day_of_week
+from .forms import CoordinateForm
 
 def regex_test_view(request):
     page_layout = BaseEcoPage(user_balance=0)
@@ -260,3 +261,22 @@ def earn_sonechka(request):
         current_balance = request.session.get('user_balance', 0)
         request.session['user_balance'] = current_balance + 50
     return redirect('marketplace_view')
+
+def map_view(request):
+    lat = 50.0152
+    lng = 36.2247
+    
+    if request.method == 'POST':
+        form = CoordinateForm(request.POST)
+        if form.is_valid():
+            lat = form.cleaned_data['lat']
+            lng = form.cleaned_data['lng']
+    else:
+        form = CoordinateForm()
+
+    context = {
+        'form': form,
+        'lat': lat,
+        'lng': lng,
+    }
+    return render(request, 'map_page.html', context)

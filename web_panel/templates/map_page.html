@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Карта за координатами</title>
+</head>
+<body>
+    <h2>Введіть координати:</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Показати на карті</button>
+    </form>
+
+    <hr>
+
+    {% if lat and lng %}
+        <h3>Результат ({{ lat }}, {{ lng }}):</h3>
+        <iframe 
+            width="600" 
+            height="450" 
+            style="border:0;" 
+            loading="lazy" 
+            src="https://maps.google.com/maps?q={{ lat }},{{ lng }}&z=15&output=embed">
+        </iframe>
+    {% endif %}
+</body>
+</html>
