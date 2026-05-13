@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Простий планувальник</title>
+    <title>Cron Планувальник (Regex)</title>
     <style>
         body { font-family: sans-serif; margin: 40px; }
         .form-box { background: #f0f0f0; padding: 15px; margin-bottom: 20px; border: 1px solid #ccc; }
@@ -11,55 +11,54 @@
         .status-on { color: green; font-weight: bold; }
         .status-off { color: red; }
         .input-group { margin-bottom: 15px; }
+        .messages { list-style: none; padding: 0; }
+        .messages li { padding: 10px; margin-bottom: 10px; border: 1px solid transparent; }
+        .messages .error { color: #842029; background-color: #f8d7da; border-color: #f5c2c7; }
+        .messages .success { color: #0f5132; background-color: #d1e7dd; border-color: #badbcc; }
     </style>
 </head>
 <body>
-    <h1>Простий планувальник скриптів</h1>
+    <h1>Управління скриптами (Cron Regex)</h1>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <div class="form-box">
-        <h3>Запустити скрипт у фоні</h3>
+        <h3>Запустити скрипт</h3>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="action" value="start">
 
             <div class="input-group">
-                <label>Назва скрипта (management command):</label><br>
+                <label>Назва команди:</label><br>
                 <input type="text" name="script_name" placeholder="test_script" required>
             </div>
 
             <div class="input-group">
-                <label>Режим роботи:</label><br>
-                <select name="mode" id="mode_select" onchange="toggleMode()">
-                    <option value="interval">Циклічно через інтервал</option>
-                    <option value="exact_time">Один раз на день у точний час</option>
-                </select>
-            </div>
-
-            <div class="input-group" id="interval_div">
-                <label>Інтервал (у хвилинах):</label><br>
-                <input type="number" step="0.1" name="interval" value="1">
-            </div>
-
-            <div class="input-group" id="exact_time_div" style="display: none;">
-                <label>Точний час запуску (гг:хх):</label><br>
-                <input type="time" name="target_time" value="22:30">
+                <label>Cron-вираз:</label><br>
+                <input type="text" name="cron_expr" placeholder="*/5 * * * *" required>
+                <br><small>Формат: Хв Год День Міс День_тижня. Підтримуються *, числа та */N.</small>
             </div>
 
             <div class="input-group">
-                <label>Кількість запусків (-1 для безкінечності):</label><br>
+                <label>Кількість виконань (-1 для нескінченності):</label><br>
                 <input type="number" name="run_count" value="-1" required>
-                <br><small>(Якщо вибрано "Точний час" і ліміт 1, скрипт виконається сьогодні і зупиниться)</small>
             </div>
 
             <button type="submit">Запустити потік</button>
         </form>
     </div>
 
-    <h3>Статус потоків у пам'яті</h3>
+    <h3>Активні потоки</h3>
     <table>
         <tr>
-            <th>Скрипт</th>
-            <th>Розклад</th>
+            <th>Команда</th>
+            <th>Cron</th>
             <th>Залишилось запусків</th>
             <th>Статус</th>
             <th>Дія</th>
@@ -67,7 +66,7 @@
         {% for task in tasks %}
         <tr>
             <td>{{ task.name }}</td>
-            <td>{{ task.schedule_info }}</td>
+            <td><code>{{ task.cron_expr }}</code></td>
             <td>
                 {% if task.runs_left == -1 %}
                     Безкінечно
@@ -77,9 +76,9 @@
             </td>
             <td>
                 {% if task.is_running %}
-                    <span class="status-on">Працює в очікуванні</span>
+                    <span class="status-on">Працює (очікує час)</span>
                 {% else %}
-                    <span class="status-off">Зупинено / Завершено</span>
+                    <span class="status-off">Завершено / Зупинено</span>
                 {% endif %}
             </td>
             <td>
@@ -97,22 +96,9 @@
         </tr>
         {% empty %}
         <tr>
-            <td colspan="5">Жоден скрипт не запускався.</td>
+            <td colspan="5">Потоків немає.</td>
         </tr>
         {% endfor %}
     </table>
-
-    <script>
-        function toggleMode() {
-            var mode = document.getElementById('mode_select').value;
-            if (mode === 'interval') {
-                document.getElementById('interval_div').style.display = 'block';
-                document.getElementById('exact_time_div').style.display = 'none';
-            } else {
-                document.getElementById('interval_div').style.display = 'none';
-                document.getElementById('exact_time_div').style.display = 'block';
-            }
-        }
-    </script>
 </body>
 </html>

@@ -8,7 +8,7 @@ from .page_logic import MarketplacePage, CartPage, BaseEcoPage
 from django.contrib import messages
 import copy
 import datetime
-from .regex_utils import is_valid_url, is_valid_date
+from .regex_utils import is_valid_url, is_valid_date, match_cron_field, is_valid_cron_syntax, is_cron_match
 import threading
 import time
 from django.shortcuts import render, redirect
@@ -273,9 +273,9 @@ def earn_sonechka(request):
 RUNNING_TASKS = {}
 
 
-def background_worker(script_name, mode, interval_minutes, target_time, run_count):
+def background_worker(script_name, cron_expr, run_count):
     RUNNING_TASKS[script_name]['runs_left'] = run_count
-    last_run_date = None
+    last_run_minute = None
 
     while RUNNING_TASKS.get(script_name, {}).get('is_running', False):
         runs_left = RUNNING_TASKS[script_name]['runs_left']
@@ -284,40 +284,30 @@ def background_worker(script_name, mode, interval_minutes, target_time, run_coun
             RUNNING_TASKS[script_name]['is_running'] = False
             break
 
-        should_run = False
+        now = datetime.datetime.now()
+        current_minute = now.strftime("%Y-%m-%d %H:%M")
 
-        if mode == 'interval':
-            should_run = True
-        elif mode == 'exact_time':
-            now = datetime.datetime.now()
-            current_time = now.strftime("%H:%M")
-            current_date = now.date()
+        if current_minute != last_run_minute:
+            if is_cron_match(cron_expr, now):
+                try:
+                    command_parts = script_name.split()
+                    actual_command = command_parts[0]
+                    command_args = command_parts[1:]
 
-            if current_time == target_time and last_run_date != current_date:
-                should_run = True
-                last_run_date = current_date
+                    call_command(actual_command, *command_args)
+                except Exception as e:
+                    print(f"Помилка виконання {script_name}: {e}")
 
-        if should_run:
-            try:
-                call_command(script_name)
-            except Exception as e:
-                print(f"Помилка виконання {script_name}: {e}")
+                last_run_minute = current_minute
 
-            if runs_left > 0:
-                RUNNING_TASKS[script_name]['runs_left'] -= 1
+                if runs_left > 0:
+                    RUNNING_TASKS[script_name]['runs_left'] -= 1
 
-            if RUNNING_TASKS[script_name]['runs_left'] == 0:
-                RUNNING_TASKS[script_name]['is_running'] = False
-                break
-
-        if mode == 'interval':
-            total_seconds = int(interval_minutes * 60)
-            for _ in range(total_seconds):
-                if not RUNNING_TASKS.get(script_name, {}).get('is_running', False):
+                if RUNNING_TASKS[script_name]['runs_left'] == 0:
+                    RUNNING_TASKS[script_name]['is_running'] = False
                     break
-                time.sleep(1)
-        elif mode == 'exact_time':
-            time.sleep(1)
+
+        time.sleep(1)
 
 
 def simple_scheduler(request):
@@ -326,43 +316,40 @@ def simple_scheduler(request):
         script_name = request.POST.get('script_name')
 
         if action == 'start':
-            mode = request.POST.get('mode', 'interval')
-            interval = float(request.POST.get('interval', 1)) if request.POST.get('interval') else 1
-            target_time = request.POST.get('target_time', '00:00')
+            cron_expr = request.POST.get('cron_expr', '* * * * *')
             run_count = int(request.POST.get('run_count', -1))
+
+            if not is_valid_cron_syntax(cron_expr):
+                messages.error(request, "Некоректний синтаксис cron! Використовуйте *, числа або */число.")
+                return redirect('simple_scheduler')
 
             if script_name not in RUNNING_TASKS or not RUNNING_TASKS[script_name]['is_running']:
                 RUNNING_TASKS[script_name] = {
                     'is_running': True,
-                    'mode': mode,
-                    'interval': interval,
-                    'target_time': target_time,
+                    'cron_expr': cron_expr,
                     'runs_left': run_count
                 }
 
                 t = threading.Thread(
                     target=background_worker,
-                    args=(script_name, mode, interval, target_time, run_count),
+                    args=(script_name, cron_expr, run_count),
                     daemon=True
                 )
                 t.start()
+                messages.success(request, f"Потік для {script_name} запущено.")
 
         elif action == 'stop':
             if script_name in RUNNING_TASKS:
                 RUNNING_TASKS[script_name]['is_running'] = False
+                messages.success(request, f"Потік для {script_name} зупинено.")
 
         return redirect('simple_scheduler')
 
     tasks_context = []
     for name, data in RUNNING_TASKS.items():
-        if data['mode'] == 'interval':
-            schedule_info = f"Кожні {data['interval']} хв."
-        else:
-            schedule_info = f"О {data['target_time']} щодня"
-
         tasks_context.append({
             'name': name,
-            'schedule_info': schedule_info,
+            'cron_expr': data['cron_expr'],
             'is_running': data['is_running'],
             'runs_left': data['runs_left']
         })
