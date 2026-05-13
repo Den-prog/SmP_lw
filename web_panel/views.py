@@ -289,7 +289,7 @@ def background_worker(script_name, mode, interval_minutes, target_time, run_coun
         if mode == 'interval':
             should_run = True
         elif mode == 'exact_time':
-            now = datetime.now()
+            now = datetime.datetime.now()
             current_time = now.strftime("%H:%M")
             current_date = now.date()
 
