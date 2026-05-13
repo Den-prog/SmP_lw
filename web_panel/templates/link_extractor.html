@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{{ header.site_name }} - Екстрактор посилань</h1>
+    <p>Баланс: {{ header.balance }} сонечок ☀️</p>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Завдання: Витягти посилання з HTML-документа</h2>
+    
+    <form method="POST" class="search-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="html_content">Вставте HTML-код для аналізу:</label>
+            <textarea name="html_content" id="html_content" rows="10" style="width: 100%;" placeholder="<html><body><a href='https://google.com'>Google</a></body></html>" required>{{ html_content }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Витягти посилання</button>
+    </form>
+
+    {% if error %}
+        <div class="alert alert-danger" style="margin-top: 20px; color: red;">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    {% if links %}
+        <div class="result-card" style="margin-top: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #f9f9f9;">
+            <h3>Знайдено посилань: {{ links_count }}</h3>
+            <hr>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: #eee;">
+                        <th style="padding: 10px; border: 1px solid #ccc; text-align: left;">Текст</th>
+                        <th style="padding: 10px; border: 1px solid #ccc; text-align: left;">URL (href)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in links %}
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #ccc;">{{ link.text }}</td>
+                        <td style="padding: 10px; border: 1px solid #ccc;"><a href="{{ link.href }}" target="_blank">{{ link.href }}</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    
+    <div style="margin-top: 40px;">
+        <a href="{% url 'marketplace_view' %}">← Назад до маркетплейсу</a>
+    </div>
+</div>
+
+<style>
+    .search-form {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        max-width: 800px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    textarea {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        font-family: monospace;
+    }
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}

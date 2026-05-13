@@ -11,7 +11,8 @@ class BaseEcoPage:
             "menu": [
                 {"label": "Маркетплейс", "url_name": "marketplace_view"},
                 {"label": "Кошик", "url_name": "cart_view"},
-                {"label": "Регулярні вирази", "url_name": "regex_test"}
+                {"label": "Регулярні вирази", "url_name": "regex_test"},
+                {"label": "Екстрактор посилань", "url_name": "link_extractor"}
             ]
         }
 

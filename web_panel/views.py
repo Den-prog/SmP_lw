@@ -11,6 +11,8 @@ import datetime
 from .regex_utils import is_valid_url, is_valid_date, match_cron_field, is_valid_cron_syntax, is_cron_match
 import threading
 import time
+import requests
+from bs4 import BeautifulSoup
 from django.shortcuts import render, redirect
 from django.core.management import call_command
 from .regex_utils import is_valid_url, is_valid_date, day_of_week
@@ -372,3 +374,33 @@ def simple_scheduler(request):
         })
 
     return render(request, 'simple_scheduler.html', {'tasks': tasks_context})
+
+def link_extractor_view(request):
+    page_layout = BaseEcoPage(user_balance=request.session.get('user_balance', 0))
+    context = {
+        'header': page_layout.render_header(),
+        'footer': page_layout.render_footer(),
+        'stats': VisitStatistics.objects.filter(date=datetime.date.today()).first() or VisitStatistics(hosts=0, hits=0, total=0)
+    }
+
+    if request.method == "POST":
+        html_content = request.POST.get('html_content', '')
+        if html_content:
+            try:
+                soup = BeautifulSoup(html_content, "html.parser")
+                links = []
+                for a in soup.find_all('a', href=True):
+                    links.append({
+                        'text': a.get_text(strip=True) or "[Текст відсутній]",
+                        'href': a['href']
+                    })
+                
+                context['links'] = links
+                context['html_content'] = html_content
+                context['links_count'] = len(links)
+                if not links:
+                    context['error'] = "У наданому HTML-коді посилань не знайдено."
+            except Exception as e:
+                context['error'] = f"Помилка при обробці HTML: {str(e)}"
+
+    return render(request, 'link_extractor.html', context)
