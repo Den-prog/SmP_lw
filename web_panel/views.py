@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.shortcuts import render
 import copy
 import datetime
-from .regex_utils import is_valid_url, is_valid_date
+from .regex_utils import is_valid_url, is_valid_date, day_of_week
 
 def regex_test_view(request):
     page_layout = BaseEcoPage(user_balance=0)
@@ -28,6 +28,11 @@ def regex_test_view(request):
             is_valid = is_valid_date(date_input)
             context['date_result'] = "Дійсна дата" if is_valid else "Недійсний формат дати"
             context['date_input'] = date_input
+
+        elif 'test_weekday' in request.POST:
+            weekday_input = request.POST.get('weekday_input', '')
+            context['weekday_result'] = day_of_week(weekday_input)
+            context['weekday_input'] = weekday_input
 
     return render(request, 'regex_test.html', context)
 
