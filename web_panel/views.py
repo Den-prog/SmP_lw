@@ -269,8 +269,8 @@ def earn_sonechka(request):
     return redirect('marketplace_view')
 
 def map_view(request):
-    lat = 50.0152
-    lng = 36.2247
+    lat: float = 50.0152518
+    lng: float = 36.2247767
     
     if request.method == 'POST':
         form = CoordinateForm(request.POST)
