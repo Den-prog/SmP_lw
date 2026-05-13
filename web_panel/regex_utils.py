@@ -50,3 +50,37 @@ def day_of_week(date_string):
             return "non existent date"
 
     return f"{date_string} is not a valid date"
+
+def match_cron_field(value, field_str):
+    if field_str == '*':
+        return True
+
+    # Перевірка формату */X (наприклад, */5)
+    m = re.match(r'^\*/(\d+)$', field_str)
+    if m:
+        return value % int(m.group(1)) == 0
+
+    # Перевірка точного числа (наприклад, 15)
+    if re.match(r'^\d+$', field_str):
+        return value == int(field_str)
+
+    return False
+
+
+def is_valid_cron_syntax(cron_str):
+    pattern = r'^(\*|\d+|\*/\d+)\s+(\*|\d+|\*/\d+)\s+(\*|\d+|\*/\d+)\s+(\*|\d+|\*/\d+)\s+(\*|\d+|\*/\d+)$'
+    return bool(re.match(pattern, cron_str.strip()))
+
+def is_cron_match(cron_str, dt):
+    parts = cron_str.strip().split()
+    if len(parts) != 5:
+        return False
+
+    # isoweekday: 1=Пн, ..., 7=Нд. У cron: 0=Нд, 1=Пн...
+    weekday = 0 if dt.isoweekday() == 7 else dt.isoweekday()
+
+    return (match_cron_field(dt.minute, parts[0]) and
+            match_cron_field(dt.hour, parts[1]) and
+            match_cron_field(dt.day, parts[2]) and
+            match_cron_field(dt.month, parts[3]) and
+            match_cron_field(weekday, parts[4]))
