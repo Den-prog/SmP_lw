@@ -1,13 +1,18 @@
+from django.contrib.admin.views.decorators import staff_member_required
+from django.core.management import call_command
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .db_manager import SQLiteDBManager, CustomDatabaseError
 from .models import Reward, VisitStatistics
 from .page_logic import MarketplacePage, CartPage, BaseEcoPage
 from django.contrib import messages
-from django.shortcuts import render
 import copy
 import datetime
 from .regex_utils import is_valid_url, is_valid_date
+import threading
+import time
+from django.shortcuts import render, redirect
+from django.core.management import call_command
 
 def regex_test_view(request):
     page_layout = BaseEcoPage(user_balance=0)
@@ -255,3 +260,105 @@ def earn_sonechka(request):
         current_balance = request.session.get('user_balance', 0)
         request.session['user_balance'] = current_balance + 50
     return redirect('marketplace_view')
+
+
+
+
+RUNNING_TASKS = {}
+
+
+def background_worker(script_name, mode, interval_minutes, target_time, run_count):
+    RUNNING_TASKS[script_name]['runs_left'] = run_count
+    last_run_date = None
+
+    while RUNNING_TASKS.get(script_name, {}).get('is_running', False):
+        runs_left = RUNNING_TASKS[script_name]['runs_left']
+
+        if runs_left == 0:
+            RUNNING_TASKS[script_name]['is_running'] = False
+            break
+
+        should_run = False
+
+        if mode == 'interval':
+            should_run = True
+        elif mode == 'exact_time':
+            now = datetime.now()
+            current_time = now.strftime("%H:%M")
+            current_date = now.date()
+
+            if current_time == target_time and last_run_date != current_date:
+                should_run = True
+                last_run_date = current_date
+
+        if should_run:
+            try:
+                call_command(script_name)
+            except Exception as e:
+                print(f"Помилка виконання {script_name}: {e}")
+
+            if runs_left > 0:
+                RUNNING_TASKS[script_name]['runs_left'] -= 1
+
+            if RUNNING_TASKS[script_name]['runs_left'] == 0:
+                RUNNING_TASKS[script_name]['is_running'] = False
+                break
+
+        if mode == 'interval':
+            total_seconds = int(interval_minutes * 60)
+            for _ in range(total_seconds):
+                if not RUNNING_TASKS.get(script_name, {}).get('is_running', False):
+                    break
+                time.sleep(1)
+        elif mode == 'exact_time':
+            time.sleep(1)
+
+
+def simple_scheduler(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        script_name = request.POST.get('script_name')
+
+        if action == 'start':
+            mode = request.POST.get('mode', 'interval')
+            interval = float(request.POST.get('interval', 1)) if request.POST.get('interval') else 1
+            target_time = request.POST.get('target_time', '00:00')
+            run_count = int(request.POST.get('run_count', -1))
+
+            if script_name not in RUNNING_TASKS or not RUNNING_TASKS[script_name]['is_running']:
+                RUNNING_TASKS[script_name] = {
+                    'is_running': True,
+                    'mode': mode,
+                    'interval': interval,
+                    'target_time': target_time,
+                    'runs_left': run_count
+                }
+
+                t = threading.Thread(
+                    target=background_worker,
+                    args=(script_name, mode, interval, target_time, run_count),
+                    daemon=True
+                )
+                t.start()
+
+        elif action == 'stop':
+            if script_name in RUNNING_TASKS:
+                RUNNING_TASKS[script_name]['is_running'] = False
+
+        return redirect('simple_scheduler')
+
+    tasks_context = []
+    for name, data in RUNNING_TASKS.items():
+        if data['mode'] == 'interval':
+            schedule_info = f"Кожні {data['interval']} хв."
+        else:
+            schedule_info = f"О {data['target_time']} щодня"
+
+        tasks_context.append({
+            'name': name,
+            'schedule_info': schedule_info,
+            'is_running': data['is_running'],
+            'runs_left': data['runs_left']
+        })
+
+    return render(request, 'simple_scheduler.html', {'tasks': tasks_context})
