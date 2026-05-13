@@ -268,7 +268,6 @@ def earn_sonechka(request):
         request.session['user_balance'] = current_balance + 50
     return redirect('marketplace_view')
 
-<<<<<<< HEAD
 def map_view(request):
     lat = 50.0152
     lng = 36.2247
@@ -287,9 +286,6 @@ def map_view(request):
         'lng': lng,
     }
     return render(request, 'map_page.html', context)
-=======
-
-
 
 RUNNING_TASKS = {}
 
@@ -389,4 +385,3 @@ def simple_scheduler(request):
         })
 
     return render(request, 'simple_scheduler.html', {'tasks': tasks_context})
->>>>>>> 40cdc04a2f67d4a57799ab8840eb0a31670fbed3
