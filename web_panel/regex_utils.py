@@ -8,7 +8,18 @@ def is_valid_url(url_string):
 
 def is_valid_date(date_string):
     pattern = r"^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/(1[6-9]\d{2}|[2-9]\d{3})$"
-    return bool(re.match(pattern, date_string))
+    match = re.match(pattern, date_string.strip())
+    if match:
+        day = int(match.group(1))
+        month = int(match.group(2))
+        year = int(match.group(3))
+
+        try:
+            datetime.date(year, month, day)
+            return True
+        except ValueError:
+            return False
+    return False
 
 #level2 (11, 14)
 
