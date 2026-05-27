@@ -36,4 +36,5 @@ urlpatterns = [
     path('link_extractor/', views.link_extractor, name='link_extractor'),
     path('link_extractor/', views.link_extractor_view, name='link_extractor'),
     path('lab4-xml/', views.lab4_xml_view, name='lab4_xml'),
+    path('chat/', views.chat_view, name='chat_view')
 ]

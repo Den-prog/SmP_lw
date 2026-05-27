@@ -525,3 +525,11 @@ def lab4_xml_view(request):
         'guestbook_entries': guestbook_entries,
     }
     return render(request, 'lab4_xml.html', context)
+
+
+
+#сторінка чату завдання 5
+def chat_view(request):
+    page_layout = BaseEcoPage(user_balance=request.session.get('user_balance', 150))
+    context = {'header': page_layout.render_header(), 'footer': page_layout.render_footer()}
+    return render(request, 'chat.html', context)
