@@ -15,6 +15,7 @@ from django.shortcuts import render, redirect
 from django.core.management import call_command
 from .regex_utils import is_valid_url, is_valid_date, day_of_week, text_to_html, html_to_text, is_valid_email
 from .forms import CoordinateForm
+from bs4 import BeautifulSoup
 from .xml_utils import parse_eco_initiatives_sax, add_guestbook_entry, read_guestbook_entries
 
 def regex_test_view(request):
@@ -431,6 +432,49 @@ def simple_scheduler(request):
 
 def link_extractor_view(request):
     return render(request, 'link_extractor.html')
+
+def link_extractor(request):
+    header_data = {
+        'site_name': 'Link extractor',
+        'balance': 150
+    }
+    
+    context = {
+        'header': header_data,
+        'html_content': '',
+        'links': None,
+        'links_count': 0,
+        'error': None
+    }
+
+    if request.method == 'POST':
+        html_content = request.POST.get('html_content', '').strip()
+        context['html_content'] = html_content
+
+        if not html_content:
+            context['error'] = 'Будь ласка, вставте HTML-код для аналізу.'
+            return render(request, 'link_extractor.html', context)
+
+        try:
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            found_tags = soup.find_all('a', href=True)
+            
+            links_list = []
+            for tag in found_tags:
+                if is_valid_url(tag['href']):
+                    links_list.append({
+                        'text': tag.get_text().strip() or '–',
+                        'href': tag['href']
+                    })
+
+            context['links'] = links_list
+            context['links_count'] = len(links_list)
+
+        except Exception as e:
+            context['error'] = f'Error: {str(e)}'
+
+    return render(request, 'link_extractor.html', context)
 
 def lab4_xml_view(request):
     page_layout = BaseEcoPage(user_balance=request.session.get('user_balance', 150))
