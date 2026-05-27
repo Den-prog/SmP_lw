@@ -32,6 +32,6 @@ urlpatterns = [
     path('lab2/', views.lab2_view, name='lab2_view'),
     path('regex-test/', views.regex_test_view, name='regex_test'),
     path('map_view/', views.map_view, name='map_view'),
-    path('scheduler/', views.simple_scheduler, name='simple_scheduler'),
-    path('link-extractor/', views.link_extractor_view, name='link_extractor'),
+    path('scheduler/', views.simple_scheduler, name='simple_scheduler')
+    # path('link-extractor/', views.link_extractor_view, name='link_extractor'),
 ]
