@@ -15,11 +15,8 @@ from django.shortcuts import render, redirect
 from django.core.management import call_command
 from .regex_utils import is_valid_url, is_valid_date, day_of_week, text_to_html, html_to_text, is_valid_email
 from .forms import CoordinateForm
-<<<<<<< HEAD
 from bs4 import BeautifulSoup
-=======
 from .xml_utils import parse_eco_initiatives_sax, add_guestbook_entry, read_guestbook_entries
->>>>>>> 2770b143a399a7cda3833d8f5cb8823a9f70407c
 
 def regex_test_view(request):
     page_layout = BaseEcoPage(user_balance=0)
