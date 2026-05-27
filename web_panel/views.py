@@ -436,7 +436,6 @@ def simple_scheduler(request):
 def link_extractor_view(request):
     return render(request, 'link_extractor.html')
 
-<<<<<<< HEAD
 def link_extractor(request):
     header_data = {
         'site_name': 'Link extractor',
@@ -479,7 +478,7 @@ def link_extractor(request):
             context['error'] = f'Error: {str(e)}'
 
     return render(request, 'link_extractor.html', context)
-=======
+
 def lab4_xml_view(request):
     page_layout = BaseEcoPage(user_balance=request.session.get('user_balance', 150))
     today = datetime.date.today()
@@ -529,4 +528,3 @@ def lab4_xml_view(request):
         'guestbook_entries': guestbook_entries,
     }
     return render(request, 'lab4_xml.html', context)
->>>>>>> 2770b143a399a7cda3833d8f5cb8823a9f70407c
