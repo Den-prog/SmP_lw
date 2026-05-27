@@ -47,10 +47,6 @@
             </div>
         </div>
     {% endif %}
-    
-    <div class="back-link-container">
-        <a href="{% url 'marketplace_view' %}" class="back-link">← Назад до маркетплейсу</a>
-    </div>
 </div>
 
 <style>
@@ -187,19 +183,6 @@
     .url-cell a:hover {
         text-decoration: underline;
         color: #1d4ed8;
-    }
-    .back-link-container {
-        margin-top: 30px;
-        margin-bottom: 20px;
-    }
-    .back-link {
-        color: #64748b;
-        text-decoration: none;
-        font-size: 0.95rem;
-        transition: color 0.2s;
-    }
-    .back-link:hover {
-        color: #334155;
     }
 </style>
 {% endblock %}
