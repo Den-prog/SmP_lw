@@ -436,7 +436,7 @@ def link_extractor_view(request):
 def link_extractor(request):
     header_data = {
         'site_name': 'Link extractor',
-        'balance': 150
+        'balance': request.session.get('user_balance', 150)
     }
     
     context = {
