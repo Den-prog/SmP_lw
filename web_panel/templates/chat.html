@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Завдання 5: WebSocket Чат</h2>
+    
+    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+        <input type="text" id="username" placeholder="Ваше ім'я..." style="padding: 5px;">
+        <input type="text" id="room-name" placeholder="ID кімнати (напр. tet_a_tet_1)" value="general" style="padding: 5px;">
+        <button id="join-btn" class="btn-earn">Приєднатися до кімнати</button>
+    </div>
+
+    <div style="border: 2px solid #ccc; border-radius: 8px; padding: 10px; background: white;">
+        <div id="chat-log" style="height: 300px; overflow-y: scroll; margin-bottom: 15px; padding: 10px; background: #f9f9f9;">
+            </div>
+        <div style="display: flex; gap: 10px;">
+            <input id="chat-message-input" type="text" style="flex: 1; padding: 10px;" placeholder="Введіть повідомлення..." disabled>
+            <button id="chat-message-submit" class="btn-earn" disabled>Відправити</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chatSocket = null;
+
+    document.getElementById('join-btn').onclick = function(e) {
+        const roomName = document.getElementById('room-name').value;
+        const userName = document.getElementById('username').value || 'Анонім';
+
+        if (chatSocket) { chatSocket.close(); }
+
+        //підключення до вказаної кімнати через WebSocket
+        chatSocket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + roomName + '/');
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const chatLog = document.getElementById('chat-log');
+            //виведення: відправник + час + повідомлення
+            chatLog.innerHTML += `<p><strong>[${data.time}] ${data.sender}:</strong> ${data.message}</p>`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+        };
+
+        chatSocket.onopen = function(e) {
+            document.getElementById('chat-message-input').disabled = false;
+            document.getElementById('chat-message-submit').disabled = false;
+            document.getElementById('chat-log').innerHTML += `<p style="color: green;"><i>Ви підключилися до кімнати: ${roomName}</i></p>`;
+        };
+    };
+
+    document.getElementById('chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.getElementById('chat-message-input');
+        const message = messageInputDom.value;
+        const sender = document.getElementById('username').value || 'Анонім';
+        
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'sender': sender
+        }));
+        messageInputDom.value = '';
+    };
+</script>
+{% endblock %}

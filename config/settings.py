@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'web_panel'
 ]
+
+#вказуємо ASGI замість WSGI для роботи WebSockets
+ASGI_APPLICATION = 'config.asgi.application'
+
+#налаштування каналів (для розробки використовуємо пам'ять)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
