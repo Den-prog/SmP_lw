@@ -127,7 +127,4 @@ def log_model_save(func):
         
     return wrapper
 
-# Щоб застосувати декоратор до моделі Reward (Завдання 6), 
-# ми можемо "пропатчити" метод save() нашої моделі Reward.
-# У реальному проекті це робиться безпосередньо в models.py, але для лаби зробимо це тут:
 Reward.save = log_model_save(Reward.save)
