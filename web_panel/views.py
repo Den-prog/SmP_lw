@@ -15,7 +15,7 @@ from django.shortcuts import render, redirect
 from django.core.management import call_command
 from .regex_utils import is_valid_url, is_valid_date, day_of_week, text_to_html, html_to_text, is_valid_email
 from .forms import CoordinateForm
-
+from .xml_utils import parse_eco_initiatives_sax, add_guestbook_entry, read_guestbook_entries
 
 def regex_test_view(request):
     page_layout = BaseEcoPage(user_balance=0)
@@ -431,3 +431,53 @@ def simple_scheduler(request):
 
 def link_extractor_view(request):
     return render(request, 'link_extractor.html')
+
+def lab4_xml_view(request):
+    page_layout = BaseEcoPage(user_balance=request.session.get('user_balance', 150))
+    today = datetime.date.today()
+    stats = VisitStatistics.objects.filter(date=today).first()
+    if not stats:
+        stats = VisitStatistics(hosts=0, hits=0, total=0)
+
+    #імітація джерела XML-даних (наприклад, відповідь від стороннього Web-сервісу)
+    sample_xml_data = """<?xml version="1.0" encoding="utf-8"?>
+<initiatives>
+    <initiative id="1">
+        <title>Еко-толока в парку</title>
+        <location>Центральний сквер</location>
+        <points>50</points>
+    </initiative>
+    <initiative id="2">
+        <title>Збір сортувального пластику</title>
+        <location>Головний корпус університету</location>
+        <points>30</points>
+    </initiative>
+    <initiative id="3">
+        <title>Висадка зеленої алеї</title>
+        <location>Студентське містечко</location>
+        <points>100</points>
+    </initiative>
+</initiatives>"""
+
+    #завдання 1–3: парсинг за допомогою SAX
+    sax_items = parse_eco_initiatives_sax(sample_xml_data)
+
+    #завдання 4:додавання запису в гостьову книгу через DOM
+    if request.method == "POST" and "add_entry" in request.POST:
+        username = request.POST.get("username", "").strip()
+        message = request.POST.get("message", "").strip()
+        if username and message:
+            add_guestbook_entry(username, message)
+            return redirect('lab4_xml')
+
+    #читання існуючих записів гостьової книги з файлу XML
+    guestbook_entries = read_guestbook_entries()
+
+    context = {
+        'header': page_layout.render_header(),
+        'footer': page_layout.render_footer(),
+        'stats': stats,
+        'sax_items': sax_items,  
+        'guestbook_entries': guestbook_entries,
+    }
+    return render(request, 'lab4_xml.html', context)

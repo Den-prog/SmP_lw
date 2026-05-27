@@ -34,4 +34,5 @@ urlpatterns = [
     path('map_view/', views.map_view, name='map_view'),
     path('scheduler/', views.simple_scheduler, name='simple_scheduler'),
     path('link_extractor/', views.link_extractor_view, name='link_extractor'),
+    path('lab4-xml/', views.lab4_xml_view, name='lab4_xml'),
 ]

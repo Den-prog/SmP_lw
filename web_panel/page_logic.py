@@ -13,6 +13,7 @@ class BaseEcoPage:
                 {"label": "Кошик", "url_name": "cart_view"},
                 {"label": "Регулярні вирази", "url_name": "regex_test"},
                 {"label": "Екстрактор посилань", "url_name": "link_extractor"},
+                {"label": "XML Сервіси", "url_name": "lab4_xml"}
             ]
         }
 
