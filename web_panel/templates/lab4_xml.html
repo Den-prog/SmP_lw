@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>{{ header.site_name }}</h1>
+    <p>Лабораторна робота №4: XML Web-Services (SAX / DOM)</p>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 0 auto; padding: 10px;">
+    
+    <div class="card" style="margin-bottom: 30px; padding: 25px;">
+        <h2>Завдання 1–3: SAX Парсер & HTML-таблиця</h2>
+        <p style="color: #555; margin-bottom: 15px; font-size: 0.95em;">
+            Послідовний розбір XML-структури за допомогою подієвих функцій-обробників (початок тегу, текст, кінець тегу).
+        </p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95em;">
+            <thead>
+                <tr style="background: #e8f5e9;">
+                    <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">ID</th>
+                    <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Еко-ініціатива</th>
+                    <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Локація проведення</th>
+                    <th style="border: 1px solid #ddd; padding: 10px; text-align: left;">Винагорода (☀️)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sax_items %}
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 10px;">{{ item.id }}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; font-weight: bold; color: #2e7d32;">{{ item.title }}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px;">{{ item.location }}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px;"><strong>+{{ item.points }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 15px; color: #888;">Дані відсутні або файл пошкоджено.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card" style="padding: 25px;">
+        <h2>Завдання 4: DOM Об'єкт & Гостьова книга</h2>
+        <p style="color: #555; margin-bottom: 15px; font-size: 0.95em;">
+            Перевірка існування <code>guestbook.xml</code>. Запис нових відгуків безпосередньо у вузли XML за допомогою об'єктної моделі DOM.
+        </p>
+        
+        <form method="POST" style="margin-bottom: 30px; background: #fdfdfd; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0;">
+            {% csrf_token %}
+            <input type="hidden" name="add_entry" value="1">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 6px;">Ваше ім'я:</label>
+                <input type="text" name="username" required placeholder="Як до вас звертатися?" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: bold; margin-bottom: 6px;">Відгук про платформу:</label>
+                <textarea name="message" required rows="3" placeholder="Напишіть ваші враження чи пропозиції..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+            </div>
+            
+            <button type="submit" class="btn-earn" style="background-color: #2e7d32; border: none; font-size: 1em; padding: 10px 20px;">
+                💾 Зберегти у файлі XML
+            </button>
+        </form>
+
+        <h3 style="margin-bottom: 15px; color: #1565c0;">📖 Стрічка відгуків (Зчитано з XML):</h3>
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+            {% for entry in guestbook_entries %}
+                <div style="border-left: 4px solid #2e7d32; background: #f9f9f9; padding: 15px; margin-bottom: 12px; border-radius: 0 8px 8px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 6px;">
+                        <strong>👤 {{ entry.name }}</strong>
+                        <span>🕒 {{ entry.date }}</span>
+                    </div>
+                    <p style="margin: 0; color: #333; font-size: 0.98em; line-height: 1.4;">{{ entry.message }}</p>
+                </div>
+            {% empty %}
+                <p style="color: #888; font-style: italic; text-align: center; padding: 20px;">Гостьова книга наразі порожня.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
