@@ -404,3 +404,6 @@ def link_extractor_view(request):
                 context['error'] = f"Помилка при обробці HTML: {str(e)}"
 
     return render(request, 'link_extractor.html', context)
+
+
+#Den
