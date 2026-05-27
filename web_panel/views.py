@@ -27,18 +27,18 @@ from .patterns import (
 def patterns_demo_view(request):
     results = []
 
-    # Демонстрація Завдання 2: Singleton
+    #демонстрація завдання 2: Singleton
     router1 = SingletonRouter()
     router2 = SingletonRouter()
     router1.add_route("/home", "HomeController")
-    is_singleton = (router1 is router2) # Має бути True
+    is_singleton = (router1 is router2) #має бути True
     results.append(f"<b>Singleton Router:</b> Об'єкти ідентичні? {is_singleton}. Маршрут /home веде на: {router2.get_controller('/home')}")
 
-    # Демонстрація Завдання 3: Factory
+    #демонстрація завдання 3: Factory
     digital_reward = RewardFactory.create_reward('digital', 'Знижка на каву', '50% off', 20, 'Кав\'ярня')
     results.append(f"<b>Factory:</b> Створено об'єкт: {digital_reward.title}")
 
-    # Демонстрація Завдання 4: Strategy
+    #демонстрація завдання 4: Strategy
     base_price = 100
     calculator = CartCalculator(SimplePriceCalculationStrategy())
     standard_price = calculator.checkout(base_price)
@@ -47,18 +47,18 @@ def patterns_demo_view(request):
     discount_price = calculator.checkout(base_price)
     results.append(f"<b>Strategy:</b> Базова ціна: {standard_price}. Ціна зі стратегією волонтера: {discount_price}")
 
-    # Демонстрація Завдання 5: Adapter
+    #демонстрація завдання 5: Adapter
     sql_db = DjangoSQLiteAdapter()
     mongo_db = MongoDatabaseAdapter()
     results.append(f"<b>Adapter (SQL):</b> {sql_db.connect()} | {sql_db.save_data('Reward_1')}")
     results.append(f"<b>Adapter (Mongo):</b> {mongo_db.connect()} | {mongo_db.save_data('Reward_2')}")
 
-    # Демонстрація Завдання 6: Decorator
-    # Записуємо тестовий товар у БД. Декоратор автоматично створить/оновить файл model_save_logs.txt
+    #демонстрація завдання 6: Decorator
+    #записуємо тестовий товар у БД. Декоратор автоматично створить/оновить файл model_save_logs.txt
     digital_reward.save() 
     results.append("<b>Decorator:</b> Викликано збереження моделі. Перевірте файл <code>model_save_logs.txt</code> у корені проєкту.")
 
-    # Виводимо результати на екран
+    #виводимо результати на екран
     html_output = "<h2>Демонстрація Шаблонів Проєктування (Лабораторна №5)</h2><ul>"
     for res in results:
         html_output += f"<li style='margin-bottom: 10px;'>{res}</li>"
