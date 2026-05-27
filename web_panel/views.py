@@ -434,13 +434,11 @@ def link_extractor_view(request):
     return render(request, 'link_extractor.html')
 
 def link_extractor(request):
-    header_data = {
-        'site_name': 'Link extractor',
-        'balance': request.session.get('user_balance', 150)
-    }
-    
+    page = BaseEcoPage(user_balance=request.session['user_balance'])
+
     context = {
-        'header': header_data,
+        'header': page.render_header(),
+        'footer': page.render_footer(),
         'html_content': '',
         'links': None,
         'links_count': 0,
