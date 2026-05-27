@@ -1,5 +1,6 @@
 import datetime
 import re
+import html
 
 #level1 (1, 2)
 def is_valid_url(url_string):
@@ -84,3 +85,25 @@ def is_cron_match(cron_str, dt):
             match_cron_field(dt.day, parts[2]) and
             match_cron_field(dt.month, parts[3]) and
             match_cron_field(weekday, parts[4]))
+
+
+def is_valid_email(email_string):
+    """Перевіряє, чи є рядок коректною email-адресою"""
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return bool(re.match(pattern, email_string.strip()))
+
+def text_to_html(text_string):
+    """Базове перетворення звичайного тексту в HTML (наприклад, заміна переносів рядків)"""
+    # Екрануємо базові HTML символи для безпеки (<, >, &)
+    escaped_text = html.escape(text_string)
+    # Замінюємо переноси рядків на теги <br>
+    html_output = re.sub(r'\r?\n', '<br>\n', escaped_text)
+    return html_output
+
+def html_to_text(html_string):
+    """Очищення HTML тегів з рядка для отримання чистого тексту"""
+    # Видаляємо всі теги <...> за допомогою регулярного виразу
+    text_without_tags = re.sub(r'<[^>]+>', '', html_string)
+    # Декодуємо HTML сутності назад у звичайні символи (наприклад, &amp; у &)
+    plain_text = html.unescape(text_without_tags)
+    return plain_text

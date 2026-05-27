@@ -43,4 +43,41 @@
             <p style="font-weight: bold;">Результат: {{ weekday_result }}</p>
         {% endif %}
     </div>
+<div style="margin-bottom: 20px; padding: 15px; border: 2px solid #FF9800; border-radius: 8px;">
+        <h3 style="margin-top: 0;">3. Конвертація: Текст в HTML</h3>
+        <form method="post" style="margin-bottom: 10px;">
+            {% csrf_token %}
+            <textarea name="text_input" placeholder="Введіть текст з переносами рядків..." style="width: 300px; padding: 5px;" rows="3">{{ text_input }}</textarea><br><br>
+            <button type="submit" name="text_to_html" class="btn-earn" style="background-color: #FF9800;">Текст в HTML</button>
+        </form>
+        {% if conversion_mode == 'text_to_html' and html_output %}
+            <p style="font-weight: bold;">Результат (HTML-код):</p>
+            <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ccc;">{{ html_output }}</div>
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom: 20px; padding: 15px; border: 2px solid #9C27B0; border-radius: 8px;">
+        <h3 style="margin-top: 0;">4. Конвертація: HTML в Текст</h3>
+        <form method="post" style="margin-bottom: 10px;">
+            {% csrf_token %}
+            <textarea name="html_input" placeholder="Введіть <b>HTML</b> код..." style="width: 300px; padding: 5px;" rows="3">{{ html_input }}</textarea><br><br>
+            <button type="submit" name="html_to_text" class="btn-earn" style="background-color: #9C27B0;">Очистити від тегів</button>
+        </form>
+        {% if conversion_mode == 'html_to_text' and text_output %}
+            <p style="font-weight: bold;">Результат (Чистий текст):</p>
+            <div style="background: #f9f9f9; padding: 10px; border: 1px solid #ccc;">{{ text_output }}</div>
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom: 20px; padding: 15px; border: 2px solid #00BCD4; border-radius: 8px;">
+        <h3 style="margin-top: 0;">5. Перевірка E-mail адреси</h3>
+        <form method="post" style="margin-bottom: 10px;">
+            {% csrf_token %}
+            <input type="text" name="email_input" value="{{ email_input }}" placeholder="student@example.com" style="width: 300px; padding: 5px;">
+            <button type="submit" name="test_email" class="btn-earn" style="background-color: #00BCD4;">Перевірити E-mail</button>
+        </form>
+        {% if email_result %}
+            <p style="font-weight: bold;">Результат: {{ email_result }}</p>
+        {% endif %}
+    </div>
 {% endblock %}

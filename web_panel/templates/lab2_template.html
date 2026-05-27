@@ -2,68 +2,123 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Лабораторна 2 - База даних</title>
+    <title>Лабораторна — PDO аналог (Django)</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        table { border-collapse: collapse; width: 60%; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .form-section { margin-bottom: 30px; padding: 15px; border: 1px solid #ccc; width: 400px; }
-        .form-group { margin-bottom: 10px; }
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f9f9f9; }
+        h1 { color: #2e7d32; }
+        h2 { color: #1565c0; border-bottom: 2px solid #1565c0; padding-bottom: 4px; }
+        .card { background: #fff; border: 1px solid #ddd; border-radius: 8px;
+                padding: 18px; margin-bottom: 24px; max-width: 620px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 12px;
+                 font-size: 0.82em; font-weight: bold; }
+        .badge-ok  { background: #c8e6c9; color: #1b5e20; }
+        .badge-err { background: #ffcdd2; color: #b71c1c; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 9px 12px; text-align: left; }
+        th { background: #e8f5e9; }
+        input[type=text], input[type=number], textarea {
+            padding: 6px 8px; border: 1px solid #bbb; border-radius: 4px;
+            width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+        textarea { resize: vertical; }
+        button { padding: 7px 18px; border: none; border-radius: 4px;
+                 cursor: pointer; font-size: 0.95em; }
+        .btn-add    { background: #2e7d32; color: #fff; }
+        .btn-many   { background: #1565c0; color: #fff; }
+        .btn-delete { background: #c62828; color: #fff; font-size: 0.85em; padding: 4px 12px; }
+        .error-box  { background: #ffebee; border: 1px solid #ef9a9a;
+                      border-radius: 6px; padding: 14px; margin-bottom: 20px; }
+        .info-row   { font-size: 0.85em; color: #555; margin-top: 4px; }
+        .task-label { font-size: 0.78em; color: #888; font-style: italic; }
     </style>
 </head>
 <body>
-    <h1>Управління базою даних (SQLitse)</h1>
 
-    <div class="form-section">
-        <h3>Додати новий запис</h3>
-        <!-- Форма для додавання -->
-        <form method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>Назва товару:</label><br>
-                <input type="text" name="title" required>
-            </div>
-            <div class="form-group">
-                <label>Ціна:</label><br>
-                <input type="number" step="0.01" name="price" required>
-            </div>
-            <button type="submit" name="add_product">Додати в БД</button>
-        </form>
-    </div>
+<h1>Робота з БД — аналог PHP/PDO на Django</h1>
 
-    <hr>
+{% if setup_result %}
+<div class="card">
+    <strong>Завдання 5 — Транзакційна ініціалізація БД:</strong>
+    {% if setup_result.success %}
+    <span class="badge badge-ok">✔ {{ setup_result.message }}</span>
+    {% else %}
+    <span class="badge badge-err">✘ {{ setup_result.message }}</span>
+    {% if setup_result.error_code %}
+    <div class="info-row">errorCode = <code>{{ setup_result.error_code }}</code></div>
+    <div class="info-row">errorInfo = <code>{{ setup_result.error_info }}</code></div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endif %}
 
-    <h3>Вміст таблиці (Вибірка даних)</h3>
+{% if db_error %}
+<div class="error-box">
+    <strong>Завдання 4 — DatabaseError (аналог PDOException):</strong><br>
+    {{ db_error }}<br>
+    <div class="info-row">errorCode = <code>{{ error_code }}</code></div>
+    <div class="info-row">errorInfo = <code>{{ error_info }}</code></div>
+</div>
+{% endif %}
+
+{# ── Завдання 1: з'єднання відбулося в __init__ SQLiteDBManager ─── #}
+<div class="card">
+    <h2>Завдання 1–2: Додати один запис <span class="task-label">(підготовлений запит + транзакція)</span></h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_product">
+        <label>Назва товару:</label>
+        <input type="text" name="title" required placeholder="Наприклад: Еко-пляшка">
+        <label>Ціна (грн):</label>
+        <input type="number" step="0.01" name="price" required placeholder="0.00">
+        <button type="submit" class="btn-add">➕ Додати в БД</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Завдання 3: Масові вставки <span class="task-label">(executemany — підготовлений запит у циклі)</span></h2>
+    <p style="color:#555; font-size:0.9em;">Введіть кілька рядків у форматі <code>назва, ціна</code> (кожен з нового
+        рядка):</p>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_many">
+        <textarea name="bulk_data" rows="4" placeholder="Рюкзак, 350&#10;Термос, 180.50&#10;Ліхтарик, 99"></textarea>
+        <button type="submit" class="btn-many">📋 Масово додати</button>
+    </form>
+</div>
+
+<div class="card" style="max-width: 100%;">
+    <h2>Вміст таблиці <code>products</code></h2>
     <table>
+        <thead>
         <tr>
             <th>ID</th>
             <th>Назва</th>
-            <th>Ціна</th>
+            <th>Ціна, грн</th>
             <th>Дія</th>
         </tr>
-        <!-- Проходимося циклом по нашому масиву словників -->
+        </thead>
+        <tbody>
         {% for item in items %}
         <tr>
             <td>{{ item.id }}</td>
             <td>{{ item.title }}</td>
             <td>{{ item.price }}</td>
             <td>
-                <!-- Окрема форма для видалення конкретного запису -->
-                <form method="POST" style="margin: 0;">
+                <form method="POST" style="margin:0;">
                     {% csrf_token %}
-                    <!-- Приховане поле, щоб передати ID запису на сервер -->
+                    <input type="hidden" name="action" value="delete_product">
                     <input type="hidden" name="record_id" value="{{ item.id }}">
-                    <button type="submit" name="delete_product" style="color: red;">Видалити</button>
+                    <button type="submit" class="btn-delete">🗑 Видалити</button>
                 </form>
             </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4" style="text-align: center;">База даних порожня. Додайте перший запис!</td>
+            <td colspan="4" style="text-align:center; color:#888;">Таблиця порожня</td>
         </tr>
         {% endfor %}
+        </tbody>
     </table>
+</div>
 
 </body>
 </html>
