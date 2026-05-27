@@ -2,87 +2,204 @@
 
 {% block header %}
     <h1>{{ header.site_name }} - Екстрактор посилань</h1>
-    <p>Баланс: {{ header.balance }} сонечок ☀️</p>
+    <p class="balance">Баланс: {{ header.balance }} сонечок ☀️</p>
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container extraction-page">
     <h2>Завдання: Витягти посилання з HTML-документа</h2>
     
     <form method="POST" class="search-form">
         {% csrf_token %}
         <div class="form-group">
             <label for="html_content">Вставте HTML-код для аналізу:</label>
-            <textarea name="html_content" id="html_content" rows="10" style="width: 100%;" placeholder="<html><body><a href='https://google.com'>Google</a></body></html>" required>{{ html_content }}</textarea>
+            <textarea name="html_content" id="html_content" rows="10" placeholder="<html><body><a href='https://google.com'>Google</a></body></html>" required>{{ html_content }}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Витягти посилання</button>
     </form>
 
     {% if error %}
-        <div class="alert alert-danger" style="margin-top: 20px; color: red;">
+        <div class="alert alert-danger">
             {{ error }}
         </div>
     {% endif %}
 
     {% if links %}
-        <div class="result-card" style="margin-top: 30px; border: 1px solid #ddd; padding: 20px; border-radius: 8px; background: #f9f9f9;">
+        <div class="result-card">
             <h3>Знайдено посилань: {{ links_count }}</h3>
-            <hr>
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #eee;">
-                        <th style="padding: 10px; border: 1px solid #ccc; text-align: left;">Текст</th>
-                        <th style="padding: 10px; border: 1px solid #ccc; text-align: left;">URL (href)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for link in links %}
-                    <tr>
-                        <td style="padding: 10px; border: 1px solid #ccc;">{{ link.text }}</td>
-                        <td style="padding: 10px; border: 1px solid #ccc;"><a href="{{ link.href }}" target="_blank">{{ link.href }}</a></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Текст</th>
+                            <th>URL (href)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for link in links %}
+                        <tr>
+                            <td class="text-cell">{{ link.text }}</td>
+                            <td class="url-cell"><a href="{{ link.href }}" target="_blank">{{ link.href }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     {% endif %}
     
-    <div style="margin-top: 40px;">
-        <a href="{% url 'marketplace_view' %}">← Назад до маркетплейсу</a>
+    <div class="back-link-container">
+        <a href="{% url 'marketplace_view' %}" class="back-link">← Назад до маркетплейсу</a>
     </div>
 </div>
 
 <style>
+    .extraction-page {
+        max-width: 800px;
+        margin: 0 auto;
+        color: #222;
+    }
+    .extraction-page h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        color: #222;
+    }
     .search-form {
         background: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        max-width: 800px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: 1px solid #eaeaea;
     }
     .form-group {
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #4a5568;
     }
     textarea {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
         box-sizing: border-box;
-        font-family: monospace;
+        font-family: 'Fira Code', Consolas, Monaco, monospace;
+        font-size: 0.9rem;
+        background-color: #f8fafc;
+        resize: vertical;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    textarea:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        background-color: #fff;
     }
     .btn {
-        padding: 10px 20px;
+        display: inline-block;
+        padding: 12px 24px;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
-        font-weight: bold;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: background-color .2s;
     }
     .btn-primary {
-        background-color: #007bff;
+        background-color: #2563eb;
         color: white;
     }
     .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: #1d4ed8;
+    }
+    .alert-danger {
+        margin-top: 20px;
+        padding: 12px 16px;
+        background-color: #fef2f2;
+        border-left: 4px solid #ef4444;
+        color: #991b1b;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+    .result-card {
+        margin-top: 35px;
+        border: 1px solid #e2e8f0;
+        padding: 25px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .result-card h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 1.25rem;
+        color: #1e293b;
+    }
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+    .results-table th {
+        background: #f1f5f9;
+        color: #475569;
+        font-weight: 600;
+        padding: 12px 16px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .results-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #334155;
+    }
+    .results-table tr:last-child td {
+        border-bottom: none;
+    }
+    .results-table tr:hover {
+        background-color: #f8fafc;
+    }
+    .text-cell {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .url-cell {
+        max-width: 400px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .url-cell a {
+        color: #2563eb;
+        text-decoration: none;
+    }
+    .url-cell a:hover {
+        text-decoration: underline;
+        color: #1d4ed8;
+    }
+    .back-link-container {
+        margin-top: 30px;
+        margin-bottom: 20px;
+    }
+    .back-link {
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+    }
+    .back-link:hover {
+        color: #334155;
     }
 </style>
 {% endblock %}
