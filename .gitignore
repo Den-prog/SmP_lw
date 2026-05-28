@@ -209,3 +209,4 @@ __marimo__/
 
 # Logs
 visits_log.txt
+model_save_logs.txt
